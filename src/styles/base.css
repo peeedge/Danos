@@ -1,0 +1,372 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  background: var(--paper);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+abbr[title] {
+  text-decoration: none;
+}
+
+:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.main:focus {
+  outline: none;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: 12px;
+  top: -60px;
+  z-index: 100;
+  padding: 10px 16px;
+  background: var(--gold);
+  color: var(--navy);
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  top: 12px;
+}
+
+/* ---------- Buttons ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 20px;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  transition: transform 0.15s var(--ease-out), background-color 0.15s, box-shadow 0.15s, border-color 0.15s, opacity 0.15s;
+  white-space: nowrap;
+}
+
+.btn:not(:disabled):active {
+  transform: translateY(1px) scale(0.98);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+}
+
+.btn--lg {
+  min-height: 52px;
+  padding: 12px 28px;
+  font-size: 16px;
+}
+
+.btn--block {
+  width: 100%;
+  margin-top: 20px;
+}
+
+.btn--gold {
+  background: var(--gold);
+  color: var(--navy);
+  box-shadow: 0 3px 0 var(--gold-deep);
+}
+
+.btn--gold:not(:disabled):hover {
+  background: #ffd36b;
+}
+
+.btn--blue {
+  background: var(--board);
+  color: var(--white);
+  box-shadow: 0 3px 0 var(--navy);
+}
+
+.btn--blue:not(:disabled):hover {
+  background: var(--highlight);
+}
+
+.btn--ghost {
+  background: transparent;
+  border-color: var(--line);
+  color: var(--ink);
+}
+
+.btn--ghost:not(:disabled):hover {
+  background: var(--paper-2);
+}
+
+.btn--outline-light {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.4);
+  color: var(--white);
+}
+
+.btn--outline-light:not(:disabled):hover {
+  border-color: var(--white);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.btn--text-light {
+  min-height: 40px;
+  padding: 8px 12px 8px 6px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.btn--text-light:hover {
+  color: var(--white);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.btn--danger {
+  background: var(--danger);
+  color: var(--white);
+  box-shadow: 0 3px 0 #8f241c;
+}
+
+.btn--danger-outline {
+  background: transparent;
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.btn--danger-outline:hover {
+  background: rgba(196, 53, 43, 0.06);
+}
+
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.icon-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--white);
+}
+
+.icon-btn--light {
+  color: var(--ink);
+}
+
+.icon-btn--light:hover {
+  background: var(--paper-2);
+  color: var(--ink);
+}
+
+.icon-btn:disabled {
+  opacity: 0.3;
+  background: transparent;
+}
+
+.link-btn {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.chip {
+  min-height: 36px;
+  padding: 6px 14px;
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--white);
+  font-weight: 600;
+  font-size: 14px;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.chip:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.chip--gold {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+/* ---------- Inputs ---------- */
+
+.input {
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 14px;
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 16px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--highlight);
+  box-shadow: 0 0 0 3px rgba(33, 87, 213, 0.25);
+}
+
+.select {
+  appearance: auto;
+}
+
+.form-error {
+  margin-top: 8px;
+  color: #ffb4ad;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.modal .form-error {
+  color: var(--danger);
+}
+
+/* ---------- Money and labels ---------- */
+
+.money {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.eyebrow {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted-ink);
+}
+
+.eyebrow--light {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.tag {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--paper-2);
+  color: var(--muted-ink);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  vertical-align: 2px;
+}
+
+.tag--gold {
+  background: var(--gold);
+  color: var(--navy);
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--heading);
+}
+
+.home__share {
+  display: flex;
+  justify-content: center;
+  margin-top: -8px;
+}
+
+.home__share .btn {
+  min-width: min(100%, 280px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .celebration,
+  .dd-reveal__rays,
+  .final__glow {
+    display: none !important;
+  }
+}

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#071B63" />
+    <meta name="description" content="Danos — one Jeopardy-style clue a day, with stakes that build all week." />
+    <title>Danos — Daily Trivia Calendar</title>
+    <script>
+      (function () {
+        try {
+          var theme = 'auto';
+          var raw = localStorage.getItem('danos:state');
+          if (raw) {
+            var parsed = JSON.parse(raw);
+            var saved = parsed && parsed.settings && parsed.settings.theme;
+            if (saved === 'light' || saved === 'dark' || saved === 'auto') theme = saved;
+          }
+          var dark = theme === 'dark' || (theme !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+          document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute('content', dark ? '#04103F' : '#071B63');
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
