@@ -25,9 +25,9 @@ Requires Node.js 20 or newer.
 
 ## GitHub Pages
 
-The live site is [peeedge.github.io/Danos](https://peeedge.github.io/Danos/). GitHub must serve the **production build** (`dist`), not the Vite source. Pushing to `main` runs `.github/workflows/deploy.yml`, which builds the app with base path `/Danos/` and deploys it.
+The live site is [peeedge.github.io/Danos](https://peeedge.github.io/Danos/).
 
-In the repo: **Settings → Pages → Source → GitHub Actions**. If Source is still “Deploy from a branch” pointing at `main`, the browser will keep requesting `/src/main.tsx` and 404.
+GitHub Pages is publishing the `main` branch, so the site cannot run `/src/main.tsx`. The production bundle is committed under `assets/` (`npm run pages`) and `index.html` loads it when the host is not localhost. Pushing to `main` also builds and deploys `dist` via GitHub Actions.
 
 ## How to play
 

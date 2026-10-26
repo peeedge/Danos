@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#071B63" />
     <meta name="description" content="Danos — one Jeopardy-style clue a day, with stakes that build all week." />
@@ -29,5 +29,20 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <!--pages-fallback-->
+    <script>
+      (function () {
+        if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') return;
+        var css = document.createElement('link');
+        css.rel = 'stylesheet';
+        css.href = './assets/danos.css';
+        document.head.appendChild(css);
+        var js = document.createElement('script');
+        js.type = 'module';
+        js.src = './assets/danos.js';
+        document.head.appendChild(js);
+      })();
+    </script>
+    <!--/pages-fallback-->
   </body>
 </html>
