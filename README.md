@@ -23,6 +23,12 @@ Open the URL Vite prints (usually `http://localhost:5173`).
 
 Requires Node.js 20 or newer.
 
+## GitHub Pages
+
+The live site is [peeedge.github.io/Danos](https://peeedge.github.io/Danos/). GitHub must serve the **production build** (`dist`), not the Vite source. Pushing to `main` runs `.github/workflows/deploy.yml`, which builds the app with base path `/Danos/` and deploys it.
+
+In the repo: **Settings → Pages → Source → GitHub Actions**. If Source is still “Deploy from a branch” pointing at `main`, the browser will keep requesting `/src/main.tsx` and 404.
+
 ## How to play
 
 - **Monday–Saturday:** one Jeopardy-style clue. Values rise from $200 to $1,200.
