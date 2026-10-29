@@ -30,7 +30,7 @@ export function StatsDashboard({ state, today }: StatsDashboardProps) {
         <div className="money-card">
           <span className="eyebrow">This week</span>
           <Money amount={stats.weeklyWinnings} className="money-card__value" />
-          <span className="money-card__sub">{stats.weekPlayed} of {stats.weekElapsed} days played so far</span>
+          <span className="money-card__sub">{stats.weekPlayed} of {stats.weekElapsed} tiles played this week</span>
         </div>
         <div className="money-card money-card--gold">
           <span className="eyebrow">Lifetime winnings</span>

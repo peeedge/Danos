@@ -8,6 +8,8 @@ import {
   isDateKey,
   msUntilNextDay,
   resolveTimeZone,
+  endOfWeek,
+  isPlayableDate,
   startOfWeek,
   weekDates,
 } from './dateUtils';
@@ -52,6 +54,11 @@ describe('week math', () => {
     expect(getWeekday('2026-11-01')).toBe(6); // Sunday
     expect(startOfWeek('2026-11-01')).toBe('2026-10-26');
     expect(startOfWeek('2026-10-26')).toBe('2026-10-26');
+    expect(endOfWeek('2026-10-28')).toBe('2026-11-01');
+    expect(isPlayableDate('2026-10-26', '2026-10-26')).toBe(true);
+    expect(isPlayableDate('2026-11-01', '2026-10-26')).toBe(true);
+    expect(isPlayableDate('2026-10-25', '2026-10-26')).toBe(false);
+    expect(isPlayableDate('2026-11-02', '2026-10-26')).toBe(false);
   });
 
   it('crosses month and year boundaries', () => {

@@ -12,11 +12,11 @@ import { ARCHIVE_WEEKS } from './game/rules';
 import { useGameState, type StorageNotice } from './hooks/useGameState';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { useTheme } from './hooks/useTheme';
-import { addDays, startOfWeek } from './lib/dateUtils';
-import { computeStats } from './lib/statsUtils';
+import { addDays, isPlayableDate, startOfWeek } from './lib/dateUtils';
+import { computeStats, getNextPlayableDate, isResolved } from './lib/statsUtils';
 import type { DateKey } from './types';
 
-type View = { name: 'home' } | { name: 'play' } | { name: 'review'; date: DateKey };
+type View = { name: 'home' } | { name: 'play'; date: DateKey } | { name: 'review'; date: DateKey };
 type ModalName = 'stats' | 'settings' | 'help' | null;
 
 const NOTICE_TEXT: Record<Exclude<StorageNotice, null>, string> = {
@@ -59,10 +59,9 @@ export default function App() {
   }, [view]);
 
   const selectDay = (date: DateKey) => {
-    if (date > today) return;
     const record = state.records[date];
-    if (date === today && record?.phase !== 'resolved') setView({ name: 'play' });
-    else setView({ name: 'review', date });
+    if (isPlayableDate(date, today) && !isResolved(record)) setView({ name: 'play', date });
+    else if (date <= today || isResolved(record)) setView({ name: 'review', date });
   };
 
   const closeModal = () => {
@@ -105,12 +104,19 @@ export default function App() {
             weekStart={weekStart}
             earliestWeek={earliestWeek}
             onWeekChange={setWeekStart}
-            onPlay={() => setView({ name: 'play' })}
+            onPlay={() => setView({ name: 'play', date: getNextPlayableDate(state.records, today) ?? today })}
             onSelectDay={selectDay}
           />
         )}
         {view.name === 'play' && (
-          <PlayScreen game={game} onExit={() => setView({ name: 'home' })} onStats={() => setModal('stats')} />
+          <PlayScreen
+            key={view.date}
+            game={game}
+            date={view.date}
+            onExit={() => setView({ name: 'home' })}
+            onPlayNext={(next) => setView({ name: 'play', date: next })}
+            onStats={() => setModal('stats')}
+          />
         )}
         {view.name === 'review' && (
           <ReviewScreen

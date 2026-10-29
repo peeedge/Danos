@@ -1,21 +1,33 @@
 # Danos
 
-A daily Jeopardy-inspired trivia calendar. One clue a day, stakes that climb through the week, surprise Daily Doubles, and a Sunday Final Jeopardy.
+A daily Jeopardy-inspired trivia calendar. Stakes that climb through the week, surprise Daily Doubles, and a Sunday Final Jeopardy. Play one tile a day, or finish the rest of this week’s column in one sitting.
 
 Danos is an independent fan-made game. It is not affiliated with or endorsed by Jeopardy! or The New York Times. All clues are original. Winnings are virtual.
 
 ## Quick start
+
+On Windows, bootstrap and start the local server (installs dependencies when needed):
+
+```powershell
+.\start.ps1
+```
+
+Or double-click `start.bat`. Open `http://localhost:5173`. Stop it with Ctrl+C, or from another terminal:
+
+```powershell
+.\close.ps1
+```
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open the URL Vite prints (usually `http://localhost:5173`).
-
 | Command | What it does |
 | --- | --- |
-| `npm run dev` | Start the local development server |
+| `.\start.ps1` / `npm start` | Install if needed, then start the local development server |
+| `.\close.ps1` / `npm run close` | Stop the local Vite server for this repo |
+| `npm run dev` | Start Vite only (no install or cleanup) |
 | `npm test` | Run the game-logic unit tests |
 | `npm run typecheck` | Type-check the project |
 | `npm run build` | Production build |
@@ -31,7 +43,7 @@ GitHub Pages is publishing the `main` branch, so the site cannot run `/src/main.
 
 ## How to play
 
-- **Monday–Saturday:** one Jeopardy-style clue. Values rise from $200 to $1,200.
+- **Monday–Saturday:** Jeopardy-style clues. Values rise from $200 to $1,200. Remaining tiles this week are open — play them today or wait.
 - **Respond as a question** if you like (“Who is Ada Lovelace?”). Bare answers are accepted too. Capitalization, punctuation, and small typos are forgiven.
 - **One try.** A correct response earns the clue’s value; an incorrect one subtracts it. A missed day is worth $0 and breaks your streak.
 - **Daily Doubles** appear on about 10% of weekday clues. You wager before the clue is revealed.
@@ -42,7 +54,7 @@ GitHub Pages is publishing the `main` branch, so the site cannot run `/src/main.
 
 Progress, wagers, and statistics are saved in this browser’s LocalStorage (`danos:state`). That is local-first persistence for a single device — not an account, not cross-device sync, and not secure anti-cheat. Clearing site data erases your record. You can also reset from Settings.
 
-New clues unlock at midnight in the time zone chosen in Settings (your local zone by default).
+This week’s remaining clues are playable immediately. Next week unlocks Monday at midnight in the time zone chosen in Settings (your local zone by default). Past days you skipped stay closed.
 
 Appearance (light, dark, or match the device) is saved with your other settings. Resetting progress keeps your theme and time zone.
 
@@ -65,4 +77,4 @@ src/
 
 Scoring never happens in click handlers. UI actions call `useGameState`, which applies a pure engine transition and writes the result to LocalStorage before React re-renders.
 
-A remote trivia API can replace `localContentProvider` later without rewriting the game rules. The current dataset is eight curated weeks of original clues, rotated deterministically so future dates stay hidden until their day arrives.
+A remote trivia API can replace `localContentProvider` later without rewriting the game rules. The current dataset is eight curated weeks of original clues, rotated deterministically so next week’s clues stay hidden until Monday.

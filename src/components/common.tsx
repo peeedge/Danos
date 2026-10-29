@@ -24,7 +24,7 @@ export function Logo({ size = 32 }: { size?: number }) {
 
 export const STATUS_LABEL: Record<DayStatus, string> = {
   locked: 'Locked',
-  available: 'Play today',
+  available: 'Open',
   'in-progress': 'In progress',
   correct: 'Correct',
   incorrect: 'Incorrect',

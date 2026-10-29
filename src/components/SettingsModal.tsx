@@ -63,7 +63,8 @@ export function SettingsModal({ open, onClose, settings, activeTimeZone, onUpdat
         <section className="settings__section">
           <label htmlFor={tzId} className="settings__label">Time zone</label>
           <p className="settings__help">
-            New clues unlock at midnight in this time zone. Currently: <strong>{activeTimeZone}</strong>.
+            This week’s remaining tiles are open now. Next week unlocks Monday at midnight in this time zone. Currently:{' '}
+            <strong>{activeTimeZone}</strong>.
           </p>
           <select
             id={tzId}

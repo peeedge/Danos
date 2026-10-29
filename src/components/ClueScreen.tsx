@@ -33,7 +33,7 @@ export function ClueScreen({ clue, record, weekday, onSubmit, error }: ClueScree
       </Board>
       <AnswerForm onSubmit={onSubmit} error={error} />
       <p className="stage__fine-print">
-        Once a clue is revealed it must be answered today. A revealed clue left unanswered at midnight counts as incorrect.
+        Once a clue is revealed it must be answered before that day ends. A revealed clue left unanswered counts as incorrect.
       </p>
     </div>
   );

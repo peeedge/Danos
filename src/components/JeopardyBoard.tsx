@@ -53,7 +53,8 @@ export function JeopardyBoard({ category, weekdayLabel, valueLabel, difficultyLa
         </button>
       </div>
       <p className="board__footnote">
-        Difficulty: <strong>{difficultyLabel}</strong> · Respond in the form of a question
+        Difficulty: <strong>{difficultyLabel}</strong> · Respond in the form of a question · This week’s remaining tiles
+        are open
       </p>
     </Board>
   );

@@ -8,7 +8,9 @@ import {
   getCurrentStreak,
   getDayStatus,
   getLongestStreak,
+  getNextPlayableDate,
   getRecentWeeks,
+  getRemainingPlayableDates,
   getWeeklyTotal,
 } from './statsUtils';
 
@@ -122,13 +124,29 @@ describe('weekly totals', () => {
 describe('getDayStatus', () => {
   it('classifies each day', () => {
     const today = addDays(MONDAY, 2);
-    expect(getDayStatus(addDays(MONDAY, 3), today, undefined)).toBe('locked');
+    expect(getDayStatus(addDays(MONDAY, 3), today, undefined)).toBe('available');
+    expect(getDayStatus(addDays(MONDAY, 7), today, undefined)).toBe('locked');
     expect(getDayStatus(today, today, undefined)).toBe('available');
     expect(getDayStatus(MONDAY, today, undefined)).toBe('missed');
     expect(getDayStatus(MONDAY, today, resolved(MONDAY, true, 200))).toBe('correct');
     expect(getDayStatus(MONDAY, today, resolved(MONDAY, false, -200))).toBe('incorrect');
     const open: DayRecord = { ...resolved(today, true, 0), phase: 'wagering', correct: undefined, delta: undefined };
     expect(getDayStatus(today, today, open)).toBe('in-progress');
+  });
+});
+
+describe('remaining weekly tiles', () => {
+  it('lists unfinished tiles from today through Sunday', () => {
+    const today = addDays(MONDAY, 2);
+    const r = records(resolved(today, true, 600));
+    expect(getRemainingPlayableDates(r, today)).toEqual([
+      addDays(MONDAY, 3),
+      addDays(MONDAY, 4),
+      addDays(MONDAY, 5),
+      addDays(MONDAY, 6),
+    ]);
+    expect(getNextPlayableDate(r, today)).toBe(addDays(MONDAY, 3));
+    expect(getNextPlayableDate(r, today, addDays(MONDAY, 4))).toBe(addDays(MONDAY, 5));
   });
 });
 
@@ -163,7 +181,7 @@ describe('computeStats', () => {
       daysEligible: 9,
       completionRate: 67,
       weekPlayed: 2,
-      weekElapsed: 2,
+      weekElapsed: 7,
       currentStreak: 0,
       longestStreak: 2,
     });

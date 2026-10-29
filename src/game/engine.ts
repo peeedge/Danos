@@ -1,5 +1,5 @@
 import { isCorrectResponse } from '../lib/answerUtils';
-import { getWeekday } from '../lib/dateUtils';
+import { getWeekday, isPlayableDate } from '../lib/dateUtils';
 import { hashToUnit } from '../lib/random';
 import { getWagerLimitsFor, scoreResponse, validateWager } from '../lib/scoringUtils';
 import { getBalanceBefore, isResolved } from '../lib/statsUtils';
@@ -40,27 +40,36 @@ function withRecord(state: PersistedState, record: DayRecord): PersistedState {
   return { ...state, records: { ...state.records, [record.date]: record } };
 }
 
+function requirePlayableDate(date: DateKey, today: DateKey): void {
+  if (isPlayableDate(date, today)) return;
+  throw new GameRuleError(
+    'not-today',
+    date < today ? 'That day’s clue is closed.' : 'Only this week’s remaining clues can be played.',
+  );
+}
+
 function requireOpenRecord(state: PersistedState, date: DateKey, today: DateKey): DayRecord {
-  if (date !== today) throw new GameRuleError('not-today', 'Only today’s clue can be played.');
+  requirePlayableDate(date, today);
   const record = state.records[date];
   if (!record) throw new GameRuleError('no-record', 'This clue hasn’t been opened yet.');
   if (record.phase === 'resolved') {
-    throw new GameRuleError('already-resolved', 'You’ve already answered today’s clue.');
+    throw new GameRuleError('already-resolved', 'You’ve already answered this clue.');
   }
   return record;
 }
 
 /**
- * Opens today's clue. Standard clues are revealed immediately; Daily Doubles and
- * Final Jeopardy enter the wagering phase first. Calling this again is a no-op.
+ * Opens a remaining clue from this week. Standard clues are revealed immediately;
+ * Daily Doubles and Final Jeopardy enter the wagering phase first. Calling this
+ * again is a no-op.
  */
 export function startChallenge(
   state: PersistedState,
   params: { day: DayContent; today: DateKey; now: Date },
 ): PersistedState {
   const { day, today, now } = params;
-  if (day.date !== today) throw new GameRuleError('not-today', 'Only today’s clue can be played.');
-  if (!day.clue) throw new GameRuleError('no-clue', 'Today’s clue is unavailable.');
+  requirePlayableDate(day.date, today);
+  if (!day.clue) throw new GameRuleError('no-clue', 'This clue is unavailable.');
   if (state.records[day.date]) return state;
 
   const isDailyDouble = day.gameType === 'standard' && isDailyDoubleFor(state.playerId, day.date);
@@ -105,7 +114,7 @@ export function lockWager(
   });
 }
 
-/** Submits the one allowed response for today's clue and finalizes the result. */
+/** Submits the one allowed response for an open clue and finalizes the result. */
 export function submitAnswer(
   state: PersistedState,
   params: {

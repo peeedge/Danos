@@ -5,7 +5,8 @@ import { useDailyChallenge } from '../hooks/useDailyChallenge';
 import type { GameApi } from '../hooks/useGameState';
 import { startOfWeek, WEEKDAY_NAMES } from '../lib/dateUtils';
 import { formatMoney } from '../lib/scoringUtils';
-import { getCurrentStreak, getLifetimeTotal, getWeeklyTotal } from '../lib/statsUtils';
+import { getCurrentStreak, getLifetimeTotal, getNextPlayableDate, getWeeklyTotal } from '../lib/statsUtils';
+import type { DateKey } from '../types';
 import { ClueScreen } from './ClueScreen';
 import { ErrorState, LoadingBoard } from './common';
 import { DailyDoubleReveal } from './DailyDoubleReveal';
@@ -17,14 +18,16 @@ import { WeeklyHistory } from './WeeklyHistory';
 
 interface PlayScreenProps {
   game: GameApi;
+  date: DateKey;
   onExit: () => void;
+  onPlayNext: (date: DateKey) => void;
   onStats: () => void;
 }
 
-/** Drives today's clue through select → (wager) → answer → result, based on the persisted record. */
-export function PlayScreen({ game, onExit, onStats }: PlayScreenProps) {
+/** Drives a remaining weekly clue through select → (wager) → answer → result, based on the persisted record. */
+export function PlayScreen({ game, date, onExit, onPlayNext, onStats }: PlayScreenProps) {
   const { state, today, timeZone } = game;
-  const challenge = useDailyChallenge(state, today, today);
+  const challenge = useDailyChallenge(state, date, today);
   const [error, setError] = useState<string | null>(null);
   const [ddRevealSeen, setDdRevealSeen] = useState(false);
   const [resolvedThisVisit, setResolvedThisVisit] = useState(false);
@@ -44,7 +47,7 @@ export function PlayScreen({ game, onExit, onStats }: PlayScreenProps) {
   if (challenge.loading) {
     content = <LoadingBoard />;
   } else if (challenge.error || !day || !clue) {
-    content = <ErrorState message={challenge.error ?? 'Today’s clue is unavailable.'} onRetry={challenge.retry} />;
+    content = <ErrorState message={challenge.error ?? 'This clue is unavailable.'} onRetry={challenge.retry} />;
   } else if (!record) {
     const rule = getDayRule(day.weekday);
     content =
@@ -70,7 +73,7 @@ export function PlayScreen({ game, onExit, onStats }: PlayScreenProps) {
           clue={clue}
           balance={balanceBefore}
           limits={wagerLimits}
-          onLock={(wager) => run(() => game.lockWager(today, wager))}
+          onLock={(wager) => run(() => game.lockWager(date, wager))}
           error={error}
         />
       );
@@ -94,9 +97,9 @@ export function PlayScreen({ game, onExit, onStats }: PlayScreenProps) {
               tone="daily-double"
               balance={balanceBefore}
               limits={wagerLimits}
-              onLock={(wager) => run(() => game.lockWager(today, wager))}
+              onLock={(wager) => run(() => game.lockWager(date, wager))}
               error={error}
-              limitNote={`Wager up to ${formatMoney(wagerLimits.max)} — the greater of your weekly balance or today’s clue value.`}
+              limitNote={`Wager up to ${formatMoney(wagerLimits.max)} — the greater of your weekly balance or this clue’s value.`}
             />
           </Board>
         </div>
@@ -105,7 +108,7 @@ export function PlayScreen({ game, onExit, onStats }: PlayScreenProps) {
   } else if (record.phase === 'answering') {
     const submit = (response: string) =>
       run(() => {
-        game.submit(today, response, clue);
+        game.submit(date, response, clue);
         setResolvedThisVisit(true);
       });
     content =
@@ -123,11 +126,13 @@ export function PlayScreen({ game, onExit, onStats }: PlayScreenProps) {
         lifetimeTotal={getLifetimeTotal(state.records)}
         streak={getCurrentStreak(state.records, today)}
         fresh={resolvedThisVisit}
-        isToday
+        isToday={date === today}
+        nextDate={getNextPlayableDate(state.records, today, date)}
         timeZone={timeZone}
         today={today}
         records={state.records}
         onBack={onExit}
+        onPlayNext={onPlayNext}
         onStats={onStats}
       >
         {record.gameType === 'final' && (

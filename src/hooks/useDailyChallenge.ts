@@ -10,7 +10,7 @@ const weekCache = new Map<string, WeekContent>();
 
 type Loadable<T> = { data: T | null; loading: boolean; error: string | null };
 
-/** Loads a week of content through the provider, caching by week and "today" so future clues stay hidden. */
+/** Loads a week of content through the provider, caching by week and "today" so next week stays hidden. */
 export function useWeekContent(weekStart: DateKey, today: DateKey): Loadable<WeekContent> & { retry: () => void } {
   const cacheKey = `${weekStart}|${today}`;
   const [attempt, setAttempt] = useState(0);

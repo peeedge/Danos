@@ -6,16 +6,17 @@ export function HowToPlay() {
   return (
     <div className="howto">
       <p className="howto__lead">
-        One Jeopardy-style clue a day. The stakes climb all week and end with Final Jeopardy on Sunday.
+        A Jeopardy-style column that climbs all week and ends with Final Jeopardy on Sunday. Play one tile a day, or
+        finish the whole remaining column today.
       </p>
       <ol className="howto__steps">
         <li>
-          <strong>Pick today’s tile.</strong> Read the clue and respond — ideally as a question (“What is…?”). Capitalization,
-          punctuation and small typos are forgiven.
+          <strong>Pick a tile.</strong> Today’s clue and every remaining tile this week are open. Read the clue and
+          respond — ideally as a question (“What is…?”). Capitalization, punctuation and small typos are forgiven.
         </li>
         <li>
-          <strong>One shot.</strong> A correct response earns the clue’s value; a wrong one subtracts it. A day you skip is
-          worth $0 but breaks your streak.
+          <strong>One shot.</strong> A correct response earns the clue’s value; a wrong one subtracts it. A day you let
+          pass is worth $0 and breaks your streak.
         </li>
         <li>
           <strong>Watch for Daily Doubles.</strong> About one clue in ten hides one. Wager up to your weekly balance (or the
@@ -23,7 +24,7 @@ export function HowToPlay() {
         </li>
         <li>
           <strong>Sunday is Final Jeopardy.</strong> See the category, wager part or all of your week’s winnings, then answer
-          one last clue.
+          one last clue. You can play it as soon as Sunday’s tile is in this week’s column.
         </li>
       </ol>
       <ul className="howto__values" aria-label="Clue values by day">

@@ -1,5 +1,5 @@
 import { getDayRule } from '../game/rules';
-import { daysBetween, getWeekday, startOfWeek, weekDates } from '../lib/dateUtils';
+import { daysBetween, endOfWeek, getWeekday, startOfWeek, weekDates } from '../lib/dateUtils';
 import { hashString, seededShuffle } from '../lib/random';
 import type { Clue, DateKey, DayContent, WeekContent } from '../types';
 import { ALL_CLUES, SEED_WEEKS } from './seedClues';
@@ -7,7 +7,8 @@ import { ALL_CLUES, SEED_WEEKS } from './seedClues';
 /**
  * Source of trivia content. The local implementation is synchronous under the hood,
  * but the interface is async so a remote API can be dropped in without touching the
- * game logic. Providers must never return clue text for dates after `today`.
+ * game logic. Providers must never return clue text for dates after the end of
+ * the current week — remaining tiles in this week may be played today.
  */
 export interface ContentProvider {
   getWeek(weekStart: DateKey, today: DateKey): Promise<WeekContent>;
@@ -60,7 +61,7 @@ export function buildDayContent(date: DateKey, today: DateKey): DayContent {
     baseValue: rule.baseValue,
     difficulty: rule.difficulty,
     gameType: rule.gameType,
-    clue: date <= today ? getClueForDate(date) : undefined,
+    clue: date <= endOfWeek(today) ? getClueForDate(date) : undefined,
   };
 }
 

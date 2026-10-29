@@ -1,5 +1,5 @@
 import type { DateKey, DayRecord, DayStatus, PersistedState, ResolvedRecord } from '../types';
-import { addDays, daysBetween, getWeekday, startOfWeek, weekDates } from './dateUtils';
+import { addDays, daysBetween, getWeekday, isPlayableDate, startOfWeek, weekDates } from './dateUtils';
 
 export function isResolved(record: DayRecord | undefined): record is ResolvedRecord {
   return (
@@ -12,9 +12,28 @@ export function isResolved(record: DayRecord | undefined): record is ResolvedRec
 
 export function getDayStatus(date: DateKey, today: DateKey, record: DayRecord | undefined): DayStatus {
   if (isResolved(record)) return record.correct ? 'correct' : 'incorrect';
+  if (isPlayableDate(date, today)) return record ? 'in-progress' : 'available';
   if (date > today) return 'locked';
-  if (date === today) return record ? 'in-progress' : 'available';
   return 'missed';
+}
+
+/** Open tiles left in this week’s column, in Monday–Sunday order. */
+export function getRemainingPlayableDates(records: Record<DateKey, DayRecord>, today: DateKey): DateKey[] {
+  return weekDates(startOfWeek(today)).filter((date) => isPlayableDate(date, today) && !isResolved(records[date]));
+}
+
+/** Next unfinished tile in this week’s column. Prefers the day after `after` when provided. */
+export function getNextPlayableDate(
+  records: Record<DateKey, DayRecord>,
+  today: DateKey,
+  after?: DateKey,
+): DateKey | undefined {
+  const remaining = getRemainingPlayableDates(records, today);
+  if (after) {
+    const later = remaining.find((date) => date > after);
+    if (later) return later;
+  }
+  return remaining[0];
 }
 
 export function resolvedRecords(records: Record<DateKey, DayRecord>): ResolvedRecord[] {
@@ -148,13 +167,14 @@ const rate = (part: number, whole: number) => (whole > 0 ? Math.round((part / wh
 /** All aggregate statistics, derived from the authoritative per-day records. */
 export function computeStats(state: PersistedState, today: DateKey): PlayerStats {
   const { records } = state;
-  const resolved = resolvedRecords(records).filter((r) => r.date <= today);
+  const resolved = resolvedRecords(records);
   const correct = resolved.filter((r) => r.correct).length;
   const dailyDoubles = resolved.filter((r) => r.isDailyDouble);
   const finals = resolved.filter((r) => r.gameType === 'final');
 
   const firstDay = state.firstSeenDate <= today ? state.firstSeenDate : today;
-  const daysEligible = daysBetween(firstDay, today) + 1;
+  const playAhead = resolved.filter((r) => r.date > today && r.date >= firstDay).length;
+  const daysEligible = daysBetween(firstDay, today) + 1 + playAhead;
   let finalsEligible = 0;
   for (let d = firstDay; d <= today; d = addDays(d, 1)) {
     if (getWeekday(d) === 6) finalsEligible++;
@@ -182,7 +202,7 @@ export function computeStats(state: PersistedState, today: DateKey): PlayerStats
     daysEligible,
     completionRate: rate(resolved.filter((r) => r.date >= firstDay).length, daysEligible),
     weekPlayed,
-    weekElapsed: getWeekday(today) + 1,
+    weekElapsed: 7,
     recent: resolved.slice(-14).reverse(),
   };
 }

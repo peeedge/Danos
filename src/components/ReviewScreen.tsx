@@ -1,7 +1,7 @@
 import { ArrowLeft, CalendarDays } from 'lucide-react';
 import { useDailyChallenge } from '../hooks/useDailyChallenge';
 import type { GameApi } from '../hooks/useGameState';
-import { formatLongDate, startOfWeek, WEEKDAY_NAMES } from '../lib/dateUtils';
+import { formatLongDate, isPlayableDate, startOfWeek, WEEKDAY_NAMES } from '../lib/dateUtils';
 import { formatMoney } from '../lib/scoringUtils';
 import { getCurrentStreak, getLifetimeTotal, getWeeklyTotal, isResolved } from '../lib/statsUtils';
 import type { DateKey } from '../types';
@@ -29,8 +29,8 @@ export function ReviewScreen({ game, date, onExit, onStats }: ReviewScreenProps)
     content = <LoadingBoard />;
   } else if (challenge.error || !day) {
     content = <ErrorState message={challenge.error ?? 'This day couldn’t be loaded.'} onRetry={challenge.retry} />;
-  } else if (date > today) {
-    content = <ErrorState message="Future clues stay locked until their day arrives." />;
+  } else if (date > today && !isResolved(record) && !isPlayableDate(date, today)) {
+    content = <ErrorState message="Next week’s clues stay locked until Monday." />;
   } else if (isResolved(record)) {
     content = (
       <ResultScreen
@@ -52,8 +52,8 @@ export function ReviewScreen({ game, date, onExit, onStats }: ReviewScreenProps)
         )}
       </ResultScreen>
     );
-  } else if (date === today) {
-    content = <ErrorState message="Today’s clue is still open — play it from the calendar." />;
+  } else if (isPlayableDate(date, today)) {
+    content = <ErrorState message="This clue is still open — play it from the calendar." />;
   } else if (clue) {
     const beforeStart = date < state.firstSeenDate;
     content = (

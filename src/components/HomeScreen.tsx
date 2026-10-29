@@ -4,7 +4,7 @@ import { useDailyChallenge } from '../hooks/useDailyChallenge';
 import type { GameApi } from '../hooks/useGameState';
 import { formatLongDate, startOfWeek } from '../lib/dateUtils';
 import { buildShareText } from '../lib/shareUtils';
-import { isResolved, type PlayerStats } from '../lib/statsUtils';
+import { getRemainingPlayableDates, isResolved, type PlayerStats } from '../lib/statsUtils';
 import type { DateKey } from '../types';
 import { Money } from './common';
 import { DailyChallengeCard } from './DailyChallengeCard';
@@ -24,12 +24,16 @@ interface HomeScreenProps {
 
 export function HomeScreen({ game, stats, weekStart, earliestWeek, onWeekChange, onPlay, onSelectDay }: HomeScreenProps) {
   const { state, today } = game;
-  const challenge = useDailyChallenge(state, today, today);
-  const resolved = challenge.status === 'correct' || challenge.status === 'incorrect';
+  const remaining = getRemainingPlayableDates(state.records, today);
+  const focusDate = remaining[0] ?? today;
+  const challenge = useDailyChallenge(state, focusDate, today);
+  const todayRecord = state.records[today];
+  const todayResolved = isResolved(todayRecord);
   const isSunday = challenge.day?.gameType === 'final';
+  const weekOpen = remaining.length > 0;
 
   const shareText = useMemo(() => {
-    const record = challenge.record;
+    const record = todayRecord;
     if (!isResolved(record)) return null;
     return buildShareText({
       date: today,
@@ -38,17 +42,23 @@ export function HomeScreen({ game, stats, weekStart, earliestWeek, onWeekChange,
       records: state.records,
       streak: stats.currentStreak,
     });
-  }, [challenge.record, state.records, stats.currentStreak, today]);
+  }, [todayRecord, state.records, stats.currentStreak, today]);
 
-  const heading = resolved
-    ? challenge.status === 'correct'
-      ? 'Nicely done. See you tomorrow.'
-      : 'Tomorrow’s another clue.'
-    : isSunday
-      ? 'Final Jeopardy awaits.'
-      : stats.played === 0
-        ? 'Your first clue awaits.'
-        : 'Your daily clue awaits.';
+  const heading = !weekOpen
+    ? isSunday || challenge.day?.gameType === 'final'
+      ? 'Week complete. See you Monday.'
+      : 'That’s the rest of this week.'
+    : challenge.status === 'in-progress'
+      ? 'Finish the clue you opened.'
+      : focusDate !== today
+        ? remaining.length === 1
+          ? 'One tile left this week.'
+          : 'The rest of the week is open.'
+        : isSunday
+          ? 'Final Jeopardy awaits.'
+          : stats.played === 0
+            ? 'Your first clue awaits.'
+            : 'Your daily clue awaits.';
 
   return (
     <div className="home">
@@ -77,7 +87,13 @@ export function HomeScreen({ game, stats, weekStart, earliestWeek, onWeekChange,
         </li>
       </ul>
 
-      <DailyChallengeCard challenge={challenge} onPlay={onPlay} />
+      <DailyChallengeCard
+        challenge={challenge}
+        remaining={remaining.length}
+        isFocusToday={focusDate === today}
+        todayResolved={todayResolved}
+        onPlay={onPlay}
+      />
       {shareText && (
         <div className="home__share">
           <ShareButton text={shareText} variant="ghost" label="Share today’s result" />

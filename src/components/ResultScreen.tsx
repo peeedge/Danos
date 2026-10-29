@@ -1,7 +1,7 @@
 import { useMemo, type ReactNode } from 'react';
-import { BarChart3, CalendarDays, CheckCircle2, XCircle } from 'lucide-react';
+import { ArrowRight, BarChart3, CalendarDays, CheckCircle2, XCircle } from 'lucide-react';
 import { useCountdown } from '../hooks/useToday';
-import { formatDuration, formatLongDate } from '../lib/dateUtils';
+import { formatDuration, formatLongDate, getWeekday, WEEKDAY_NAMES } from '../lib/dateUtils';
 import { formatMoney } from '../lib/scoringUtils';
 import { buildShareText } from '../lib/shareUtils';
 import type { Clue, DateKey, DayRecord } from '../types';
@@ -18,10 +18,12 @@ interface ResultScreenProps {
   streak: number;
   fresh: boolean;
   isToday: boolean;
+  nextDate?: DateKey;
   timeZone: string;
   today: DateKey;
   records: Record<DateKey, DayRecord>;
   onBack: () => void;
+  onPlayNext?: (date: DateKey) => void;
   onStats: () => void;
   children?: ReactNode;
 }
@@ -34,10 +36,12 @@ export function ResultScreen({
   streak,
   fresh,
   isToday,
+  nextDate,
   timeZone,
   today,
   records,
   onBack,
+  onPlayNext,
   onStats,
   children,
 }: ResultScreenProps) {
@@ -130,14 +134,24 @@ export function ResultScreen({
         </div>
       </div>
 
-      {isToday && (
+      {nextDate ? (
         <p className="result__return">
-          {isFinal ? 'A brand-new week begins tomorrow.' : 'Come back tomorrow — the stakes go up.'}{' '}
-          <span className="result__countdown">Next clue in {formatDuration(countdown)}</span>
+          {WEEKDAY_NAMES[getWeekday(nextDate)]}’s tile is open — you can keep going today.
         </p>
-      )}
+      ) : isToday ? (
+        <p className="result__return">
+          {isFinal ? 'A brand-new week begins tomorrow.' : 'That’s the rest of this week. A new column unlocks Monday.'}{' '}
+          <span className="result__countdown">Next week in {formatDuration(countdown)}</span>
+        </p>
+      ) : null}
 
       <div className="result__actions">
+        {nextDate && onPlayNext && (
+          <button type="button" className="btn btn--gold btn--lg" onClick={() => onPlayNext(nextDate)}>
+            Play {WEEKDAY_NAMES[getWeekday(nextDate)]}’s clue
+            <ArrowRight size={18} aria-hidden="true" />
+          </button>
+        )}
         <ShareButton text={shareText} />
         <button type="button" className="btn btn--outline-light" onClick={onStats}>
           <BarChart3 size={18} aria-hidden="true" />

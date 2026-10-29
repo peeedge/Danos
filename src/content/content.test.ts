@@ -70,10 +70,13 @@ describe('schedule', () => {
     expect(new Set(aligned).size).toBe(SEED_WEEKS.length);
   });
 
-  it('withholds clues for future dates', async () => {
+  it('reveals the rest of the current week and withholds the next one', async () => {
     const week = await localContentProvider.getWeek('2026-10-26', '2026-10-28');
-    expect(week.days.map((d) => d.clue !== undefined)).toEqual([true, true, true, false, false, false, false]);
+    expect(week.days.map((d) => d.clue !== undefined)).toEqual([true, true, true, true, true, true, true]);
     expect(week.days[6]!.gameType).toBe('final');
     expect(buildDayContent('2026-10-27', '2026-10-28').baseValue).toBe(400);
+
+    const next = await localContentProvider.getWeek('2026-11-02', '2026-10-28');
+    expect(next.days.map((d) => d.clue !== undefined)).toEqual([false, false, false, false, false, false, false]);
   });
 });

@@ -88,20 +88,30 @@ describe('standard clues', () => {
     expect(started.records[MONDAY]!.phase).toBe('answering');
   });
 
-  it('cannot play future or past days', () => {
-    const tomorrow = addDays(MONDAY, 1);
-    const futureDay = buildDayContent(tomorrow, tomorrow);
-    expect(() => startChallenge(stateFor(player), { day: futureDay, today: MONDAY, now: NOW })).toThrowError(
-      /Only today/,
+  it('cannot play past days or next week', () => {
+    const nextMonday = addDays(MONDAY, 7);
+    const nextWeek = buildDayContent(nextMonday, nextMonday);
+    expect(() => startChallenge(stateFor(player), { day: nextWeek, today: MONDAY, now: NOW })).toThrowError(
+      /this week/,
     );
     const yesterday = buildDayContent(addDays(MONDAY, -1), addDays(MONDAY, -1));
     expect(() => startChallenge(stateFor(player), { day: yesterday, today: MONDAY, now: NOW })).toThrowError(
-      /Only today/,
+      /closed/,
     );
   });
 
-  it('never exposes future clue text from the content layer', () => {
-    expect(buildDayContent(addDays(MONDAY, 1), MONDAY).clue).toBeUndefined();
+  it('can play later days in the current week', () => {
+    const tuesday = addDays(MONDAY, 1);
+    const aheadPlayer = findPlayer(tuesday, false);
+    const day = buildDayContent(tuesday, MONDAY);
+    expect(day.clue).toBeDefined();
+    const started = startChallenge(stateFor(aheadPlayer), { day, today: MONDAY, now: NOW });
+    expect(started.records[tuesday]).toMatchObject({ phase: 'answering', date: tuesday });
+  });
+
+  it('never exposes next week’s clue text from the content layer', () => {
+    expect(buildDayContent(addDays(MONDAY, 7), MONDAY).clue).toBeUndefined();
+    expect(buildDayContent(addDays(MONDAY, 1), MONDAY).clue).toBeDefined();
     expect(buildDayContent(MONDAY, MONDAY).clue).toBeDefined();
   });
 });
@@ -267,6 +277,35 @@ describe('Final Jeopardy', () => {
     expect(() =>
       submitAnswer(state, { date: sunday, today: sunday, response: day.clue!.correctAnswer, clue: day.clue!, now: NOW }),
     ).toThrowError(/already answered/);
+  });
+});
+
+describe('play-ahead', () => {
+  it('lets a player finish the remaining column on a single day', () => {
+    let player = '';
+    for (let i = 0; i < 50_000; i++) {
+      const id = `column-${i}`;
+      if (weekDates(MONDAY).slice(0, 6).every((date) => !isDailyDoubleFor(id, date))) {
+        player = id;
+        break;
+      }
+    }
+    expect(player).not.toBe('');
+
+    let state = stateFor(player);
+    for (const date of weekDates(MONDAY).slice(0, 6)) {
+      const day = buildDayContent(date, MONDAY);
+      state = startChallenge(state, { day, today: MONDAY, now: NOW });
+      state = submitAnswer(state, {
+        date,
+        today: MONDAY,
+        response: `What is ${day.clue!.correctAnswer}?`,
+        clue: day.clue!,
+        now: NOW,
+      });
+    }
+    expect(weekDates(MONDAY).slice(0, 6).every((date) => state.records[date]?.phase === 'resolved')).toBe(true);
+    expect(getWeeklyTotal(state.records, MONDAY)).toBe(200 + 400 + 600 + 800 + 1000 + 1200);
   });
 });
 

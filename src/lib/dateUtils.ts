@@ -113,12 +113,21 @@ export function startOfWeek(key: DateKey): DateKey {
   return addDays(key, -getWeekday(key));
 }
 
+export function endOfWeek(key: DateKey): DateKey {
+  return addDays(startOfWeek(key), 6);
+}
+
 export function weekDates(weekStart: DateKey): DateKey[] {
   return Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 }
 
 export function isSameWeek(a: DateKey, b: DateKey): boolean {
   return startOfWeek(a) === startOfWeek(b);
+}
+
+/** Remaining clues in the current week can be played today; earlier days and later weeks cannot. */
+export function isPlayableDate(date: DateKey, today: DateKey): boolean {
+  return date >= today && isSameWeek(date, today);
 }
 
 export function formatLongDate(key: DateKey): string {
